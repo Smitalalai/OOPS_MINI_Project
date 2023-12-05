@@ -1,0 +1,128 @@
+#include<iostream>
+#include<fstream>
+#include<cstring>
+using namespace std;
+
+class Book
+{
+public:
+    char bookId[100];
+    char bookName[100];
+    char authorName[100];
+    int noOfCopies;
+
+    void getBookData()
+    {
+        cout << "Enter Book ID: ";
+        cin >> bookId;
+        cout << "Enter Book Name: ";
+        cin >> bookName;
+        cout << "Enter Author Name: ";
+        cin >> authorName;
+        cout << "Enter Number of Copies: ";
+        cin >> noOfCopies;
+    }
+};
+
+int main()
+{
+    int choice;
+    char ans;
+    static int i = 0;
+    Book books[100];
+    fstream file;
+
+    do {
+        cout << "***BOOKSHOP MANAGEMENT MENU***\n"
+             << "1. Add a Book\n"
+             << "2. Display Book Inventory\n"
+             << "3. Search for a Book\n"
+             << "4. Update Book Details\n"
+             << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                file.open("BookInventory.txt", ios::app |ios::binary);
+                books[i].getBookData();
+                file.write(reinterpret_cast<char*>(&books[i]), sizeof(books[i]));
+                i++;
+                break;
+
+            case 2:
+                file.open("BookInventory.txt",ios::binary);
+                cout << "Book Inventory\n"
+                     << "Book ID\t\tBook Name\t\tAuthor Name\t\tNo. of Copies\n";
+
+                for (int j = 0; j < i; j++) {
+                    file.read(reinterpret_cast<char*>(&books[j]), sizeof(books[j]));
+                    cout << books[j].bookId << "\t\t" << books[j].bookName << "\t\t"
+                         << books[j].authorName << "\t\t" << books[j].noOfCopies << endl;
+                }
+                break;
+
+            case 3:
+                char searchId[100];
+                file.open("BookList.txt");
+                cout << "Enter the Book ID to be searched: ";
+                cin >> searchId;
+
+                for (int j = 0; j < i; j++) {
+                    file.read(reinterpret_cast<char*>(&books[j]), sizeof(books[j]));
+                    if (strcmp(searchId, books[j].bookId) == 0) {
+                        cout << "Book Found!\n"
+                             << "Book ID: " << books[j].bookId << "\n"
+                             << "Book Name: " << books[j].bookName << "\n"
+                             << "Author Name: " << books[j].authorName << "\n"
+                             << "No. of Copies: " << books[j].noOfCopies << endl;
+                        break;
+                    }
+                    else{
+                    	cout<<"Book ID not found";
+					}
+                    
+                }
+                break;
+
+            case 4:
+                int updateChoice;
+                char updateId[100];
+                cout << "Enter the Book ID to be updated: ";
+                cin >> updateId;
+                for (int j = 0; j < i; j++) {
+                    file.write(reinterpret_cast<char*>(&books[j]), sizeof(books[j]));
+                    if (strcmp(updateId, books[j].bookId) == 0) {
+                        cout << "1. Update Book Name\n"
+                             << "2. Update Author Name\n"
+                             << "3. Update No. of Copies\n"
+                             << "Enter your choice: ";
+                        cin >> updateChoice;
+                        switch (updateChoice) {
+                            case 1:
+                                cout << "Enter the updated Book Name: ";
+                                cin >> books[j].bookName;
+                                break;
+                            case 2:
+                                cout << "Enter the updated Author Name: ";
+                                cin >> books[j].authorName;
+                                break;
+                            case 3:
+                                cout << "Enter the updated No. of Copies: ";
+                                cin >> books[j].noOfCopies;
+                                break;
+                            default:
+                                cout << "Invalid Choice\n";
+                                break;
+                        }
+                    }
+                }
+                break;
+
+            default:
+                cout << "Invalid choice\n";
+                break;
+        }
+        cout << "Do you want to continue (y/n): ";
+        cin >> ans;
+    } while (ans == 'y');
+}
